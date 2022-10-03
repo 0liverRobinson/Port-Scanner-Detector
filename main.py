@@ -59,14 +59,18 @@ def detect_port_scan():
                     if (packet_cap.source_ip not in unsafe_packet_dictionary):
                         print("[", packet_cap.source_ip,"\033[91m\033[1mDETECTED PORT SCANNING\033[0m ]")
                         # Append to the unsafe packet dictionary
-                        unsafe_packet_dictionary[packet_cap.source_ip] = None
+                        unsafe_packet_dictionary[packet_cap.source_ip] = packet_cap
                     # Open the log file to do with the IP address
                     log_file = open( "logs/" + packet_cap.source_ip.replace(".", "_") + ".log", "a")
                     # Write to the file
                     writeLog(log_file, packet_cap)
                     # Close file
                     log_file.close()
+                    remove_list.append(packet_cap.source_ip)
         dictionary_lock.release()
+        # Remove printed packets from packet dictionary
+        for ip_address in remove_list:
+            del packet_dictionary[ip_address]
 
 
 def isNewPort(packet_cap: PacketCap, selected_port: string) -> boolean:
@@ -117,7 +121,8 @@ def deconstruct_packet(packet_captured):
                 compiled_packet.nextNode = packet_dictionary[source_ip]                     # Set head next to the rest of the list
                 if (isNewPort(packet_dictionary[source_ip], source_port)):                  # Determine weatehr we are scanning a new port or not
                     packet_dictionary[source_ip] = compiled_packet                          # If we are scanning a new port, add it to the linked list
-                dictionary_lock.release()                        
+                del unsafe_packet_dictionary[source_ip]
+                dictionary_lock.release()                
 
     except:
         pass
