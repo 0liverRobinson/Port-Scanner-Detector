@@ -140,7 +140,7 @@ def fetch_thread():
 if __name__ == "__main__":
 
     # Threshold for how many ports someone has to touch before detemining it as a port scan
-    PORT_COUNT_THRESHOLD = 1
+    PORT_COUNT_THRESHOLD = 100
     
     # Get IP address
     host_ip = str ( get_if_addr(conf.iface) ).replace(" ", "")
